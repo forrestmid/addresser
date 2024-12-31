@@ -1,4 +1,3 @@
-var request = require('request');
 var fs = require('fs');
 var unzipper = require('unzipper');
 
@@ -7,7 +6,10 @@ async function getDataForCountry(country_code){
   let country_code_upper = country_code.toUpperCase();
   var states = JSON.parse(fs.readFileSync("../data/"+country_code_lower+"-states.json"));
 
-  unzipper.Open.url(request,'http://download.geonames.org/export/zip/'+country_code_upper+'.zip')
+  const zipFile = await fetch('http://download.geonames.org/export/zip/'+country_code_upper+'.zip');
+  const zipBuffer = Buffer.from(await zipFile.arrayBuffer());
+
+  unzipper.Open.buffer(zipBuffer)
     .then(function(d) {
       var file = d.files.filter(function(d) {
         return d.path === country_code_upper+'.txt';
